@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
         latitude: Number,
         longitude: Number,
     },
+    userId: String
 }, { timestamps: true });
 
 const Post = mongoose.model('posts', userSchema);

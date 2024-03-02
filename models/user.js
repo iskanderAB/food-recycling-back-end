@@ -14,7 +14,12 @@ const userSchema = new mongoose.Schema({
     fullname: String,
     phone: String,
     avatar: String,
-    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+    isVendor: {
+        type: Boolean,
+        required: true,
+        default: false,
+    }
 }, { timestamps: true });
 
 const User = mongoose.model('users', userSchema);

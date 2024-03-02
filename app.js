@@ -9,6 +9,7 @@ const router = express.Router();
 const routerUsers = require('./routes/usersRouter')
 const routerAlerts = require('./routes/alertRoutes')
 const connection = require('./config/connection');
+const { pushNotifcation } = require("./services/pushNotification");
 
 
 
@@ -17,36 +18,10 @@ app.use(express.json());
 app.disable('x-powered-by');
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-// app.post("/notifications", async (req, res)=> {
-// try {
-//     const response = await fetch('https://fcm.googleapis.com/fcm/send', {
-//         method: 'POST',
-//         headers: {
-//             'Authorization': 'key=AAAAyg5U0Gs:APA91bGRwiJJ6ROKuC42-4G7hGDtuBbuhLBMfHcm8_FyT8vTWj7F-8cKnWXzDJiRkMzszt3LKaLR7o33AyVGeZjc_SY8Ymypio01eI81py7mdGX_tteVa5sVBJ-LSRAuRfrGHufytJG-',
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//             notification: {
-//                 title: "isaknder"
-//             },
-//             registration_ids: ['dL7RFtHtSfGlHbXyBrGDjp:APA91bE3n93uL1wd_aGMihjjHIGw8mP0jBDeCeza38rDbwxUeV9vh8JPy3GrvdHpPa5V0Q86OKoD1s6Bd6ZtGbAiGMgMYtAwtNspdSd5GoWXy7hORTJH8XIboe4ELViKS76naakWCpEE'],
-//         }),
-//     });
 
-//     if (!response.ok) {
-//         throw new Error(`HTTP error! Status: ${response.status}`);
-//     }
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
-//     // Handle successful response here
-//     // For example, you can parse the response JSON if it is returned
-//     const result = await response.json();
-//     console.log(result);
-// } catch (error) {
-//     // Handle errors here
-//     console.error('Error during fetch:', error);
-// }
-//     res.send({message: "hello"})
-// })
 app.use(routerUsers.router);
 app.use(routerAlerts.router);
 
@@ -59,6 +34,8 @@ app.post('/post-data',async (req, res)=> {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
+    console.log("header => ",req.get('user-data'))
+    const user = req.headers.user;
         // Access the uploaded file
     const file = req.files.image;
     
@@ -70,16 +47,33 @@ app.post('/post-data',async (req, res)=> {
             return res.status(500).send(err);
         }
     });
-    await Post.create({
+    const data= JSON.parse(req.get('user-data'));
+
+    const post = await Post.create({
         title: req.body.title,
         description: req.body.description,
         image: fileName,
-        price: req.body.price
+        price: req.body.price,
+        userId: data._id
     })
+    // sender token => FCMToken
+    await pushNotifcation(data._id, post)
     return res.status(201).json({
             message: "success"
     });
 })  
+
+router.get('/getAllPost', async (req, res) => {
+    const posts = await Post.find();
+    res.status(200).json(posts);
+});
+
+
+app.post('/test-notification',async (req, res)=> { 
+    return res.send(await pushNotifcation())
+})
+
+
 
 router.get('/*', (req, res) => {
     res.status(404).json('endPoint not found !');
