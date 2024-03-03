@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
         latitude: Number,
         longitude: Number,
     },
-    user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }
 }, { timestamps: true });
 
 const Post = mongoose.model('posts', userSchema);
