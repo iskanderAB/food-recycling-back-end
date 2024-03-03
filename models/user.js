@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
         default: false,
     },
     phone: String,
+    location: String,
 }, { timestamps: true });
 
 const User = mongoose.model('users', userSchema);
