@@ -10,6 +10,7 @@ const routerUsers = require('./routes/usersRouter')
 const routerAlerts = require('./routes/alertRoutes')
 const connection = require('./config/connection');
 const { pushNotifcation } = require("./services/pushNotification");
+const { Types } = require("mongoose");
 
 
 
@@ -29,6 +30,7 @@ app.use(fileUpload({
     useTempFiles : true,
     tempFileDir : '/tmp/'
 }));
+
 app.post('/post-data',async (req, res)=> { 
     // Check if files were uploaded
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -54,7 +56,7 @@ app.post('/post-data',async (req, res)=> {
         description: req.body.description,
         image: fileName,
         price: req.body.price,
-        userId: data._id
+        user: new Types.ObjectId(data._id)
     })
     // sender token => FCMToken
     await pushNotifcation(data._id, post)
@@ -63,8 +65,9 @@ app.post('/post-data',async (req, res)=> {
     });
 })  
 
-router.get('/getAllPost', async (req, res) => {
-    const posts = await Post.find();
+
+app.get('/getAllPosts', async (req, res) => {
+    const posts = await Post.find().populate('user',['username']);
     res.status(200).json(posts);
 });
 

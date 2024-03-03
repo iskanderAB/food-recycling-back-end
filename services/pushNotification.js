@@ -15,6 +15,9 @@ exports.pushNotifcation = async (senderToken = '', post= null) => {
         body: JSON.stringify({
             notification: {
                 title: post.title,
+                sound : "default",
+                high_priority: "high",
+                show_in_foreground: true,
                 icon: 'logo',
                 body: `New food alert! "${post.title}" is here! \n ${post.description} \n price ${post.price} TND`,
             },
