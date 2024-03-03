@@ -12,7 +12,8 @@ exports.addNewUser = async (userData) => {
     return newUser;
 }
 exports.editUser = async (id, userData) => {
-    const user = await User.findByIdAndUpdate(id, { ...userData }, { new: true });
+    console.log({ id, userData });
+    const user = await User.findByIdAndUpdate(id, { ...userData }, { new: true }).lean();
     if (!user) {
         throw new Error('User not found');
     }
@@ -31,4 +32,4 @@ exports.signIn = async (email, password) => {
     return user;
 }
 
-exports.addPost = async(postData) => {}
+exports.addPost = async (postData) => { }

@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false,
-    }
+    },
+    phone: String,
 }, { timestamps: true });
 
 const User = mongoose.model('users', userSchema);
